@@ -1,0 +1,58 @@
+seed: 10
+out_dir: data/rl/interventional_distribution
+type: interventional
+
+model:
+  type: discrete_cpt
+  n_vars:
+    train: [10]
+    eval: [10]
+  n_vals:
+    train: [2, 3]
+    eval: [2, 3]
+
+data:
+  format: parquet
+  n_models: 
+    train: 1000
+    dev: 200
+    test: 200
+  n_questions_per_model:
+    train: 100
+    dev: 10
+    test: 40
+  n_observe: 0
+  n_intervene: 1
+  prompt:
+    system: |-
+      You are an expert on graphical models and causal inference. You task is to compute probability queries over a structural causal model.
+
+      Format your solution as follows:
+        THOUGHT PROCESS
+        All intermediate steps of analysis, reasoning, and computation.
+
+        ANSWER
+        Only state your final answer to the query, via a list of numbers such as [0.1, 0.7, 0.2] or [0.1, 0.9]. Round you answer to the nearest two digits.
+
+    user: |-
+      Here's a structural causal model over discrete random variables. The Variables are {var_names}. Here are the Values they can take on.
+
+      {values}
+
+      Here's the causal directed acyclic graph (DAG):
+
+      {graph}
+
+      Here are the causal conditional probability tables (CPT) associated with the DAG:
+
+      {cpts}
+
+      Here's your {question}
+      
+      ----------
+
+      Now start your solution process. Be precise.
+  
+    reference:
+      type: distribution
+  max_tries_for_uniqueness: 100
